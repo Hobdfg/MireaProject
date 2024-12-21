@@ -3,7 +3,7 @@ from config import token
 from gpt import GPT
 import random
 import time
-import telebot
+
 
 current_tasks = {}
 current_answers = {}
