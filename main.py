@@ -1,7 +1,7 @@
 from telebot import *
 from config import token
 from gpt import GPT
-from elements import delements, ptable, command
+from elements import delements, ptable, command, simpleformula
 import json
 import random
 import time
@@ -13,6 +13,11 @@ periodic_table = ptable
 bot = telebot.TeleBot(token)
 gpt = GPT()
 subscribers = {}
+
+@bot.message_handler(commands=['formula'])
+def formula(message):
+        bot.send_message(message.chat.id, simpleformula)
+
 
 def send_daily_element(chat_id):
     bot.send_message(chat_id, random.choice(daily_elements))
@@ -88,6 +93,8 @@ while True:
         for chat_id in subscribers.keys():
             send_daily_element(chat_id)
         time.sleep(60)
+
+
 
     bot.polling(non_stop=True)
 
