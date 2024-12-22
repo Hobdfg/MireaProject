@@ -1,27 +1,17 @@
 from telebot import *
 from config import token
 from gpt import GPT
+from elements import delements, ptable, command
+import json
 import random
 import time
 
-
 current_tasks = {}
 current_answers = {}
-daily_elements = [
-    "H - Водороду принадлежит звание самого горячего элемента. В звёздах, включая Солнце, происходят реакции синтеза водорода, выделяющие огромное количество энергии в форме света и тепла.",
-    "He - Гелий — один из первых химических элементов, возникших после Большого Взрыва. Наша Вселенная практически на треть состоит из гелия."
-]
-
-# Словарь с элементами таблицы Менделеева
-periodic_table = {
-    1: {"symbol": "H", "name": "Водород", "mass": 1.008, "properties": "Газ, бесцветный, не имеет запаха.", "fact": "Самый распространённый элемент во Вселенной."},
-    2: {"symbol": "He", "name": "Гелий", "mass": 4.0026, "properties": "Газ, инертный, бесцветный.", "fact": "Используется в воздушных шарах."},
-    # Добавьте другие элементы по мере необходимости
-}
-
+daily_elements = delements
+periodic_table = ptable
 bot = telebot.TeleBot(token)
 gpt = GPT()
-
 subscribers = {}
 
 def send_daily_element(chat_id):
@@ -31,16 +21,27 @@ def send_daily_element(chat_id):
 def dailyelement(message):
     chat_id = message.chat.id
     subscribers[chat_id] = True
+    subscriber = save_subscribers()
     bot.send_message(chat_id, "Вы подписаны на ежедневные сообщения! Вернитесь в 15:00 и заново пропишите команду.")
     bot.register_next_step_handler(message, lambda msg: send_daily_element(chat_id))
 
+def read_subscribers():
+    try:
+        with open('subscribers.json', 'r') as file:
+            subscribers = json.load(file)
+    except FileNotFoundError:
+        subscribers = {}
+    return subscribers
+
+def save_subscribers():
+    with open('subscribers.json', 'w') as file:
+        json.dump(subscribers, file)
+
+subscriber = read_subscribers()
+
 @bot.message_handler(commands=['commands'])
 def commands(message):
-    bot.send_message(message.chat.id, "/start - Запусти или перезапусти бота\n"
-                                      "/commands - Помощь по командам\n"
-                                      "/bot - Запусти режим нейросети\n"
-                                      "/table - Интерактивная таблица менделеева\n"
-                                      "/daily - Запуск ежедневных интересных фактов про эл-ты химии")
+    bot.send_message(message.chat.id, command)
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -50,6 +51,7 @@ def start(message):
 @bot.message_handler(commands=['bot'])
 def start_gpt(message):
     bot.send_message(message.chat.id, "Запускаю нейросеть...")
+
 
 @bot.message_handler(commands=['table'])
 def table_command(message):
