@@ -1,6 +1,5 @@
 from telebot import *
 from config import token
-from gpt import GPT
 from elements import delements, ptable, command, simpleformula
 import json
 import random
@@ -11,7 +10,6 @@ current_answers = {}
 daily_elements = delements
 periodic_table = ptable
 bot = telebot.TeleBot(token)
-gpt = GPT()
 subscribers = {}
 
 @bot.message_handler(commands=['formula'])
@@ -52,11 +50,6 @@ def commands(message):
 def start(message):
     bot.send_message(message.chat.id, "Привет! Я бот химэкспресс, я твой личный помощник по химии.\n"
                                       "Пропиши /commands для подробной информации про команды")
-
-@bot.message_handler(commands=['bot'])
-def start_gpt(message):
-    bot.send_message(message.chat.id, "Запускаю нейросеть...")
-
 
 @bot.message_handler(commands=['table'])
 def table_command(message):
